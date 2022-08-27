@@ -1,0 +1,34 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using StripeDemo.Controllers
+@using StripeDemo.Tools
+@model StripeDemo.Models.ViewModels.LicencesViewModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="row">
+
+
+    @foreach (var product in @Model.ProductModelList)
+    {
+        <div class="col-4">
+            <div class="card" style="width: 18rem;">
+                <img src="..." class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">@product.Name (@product.PriceModel.UnitAmount Euros)</h5>
+                    <p class="card-text"> </p>
+
+
+                    <a asp-controller="@(Utils.GetControllerName<LicenceController>())"
+                   asp-action="@(nameof(LicenceController.Select))"
+                   asp-route-id="@product.Id">
+                        Continue to checkout
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+
+
+   

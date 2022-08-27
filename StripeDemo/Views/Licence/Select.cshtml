@@ -1,0 +1,13 @@
+﻿@model StripeDemo.Models.ViewModels.SelectedLicenceViewModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<p>
+    you selected product @Model.ProductModel.Name id: @Model.ProductModel.Id 
+</p>
+
+<p>
+    price is  @Model.ProductModel.PriceModel.UnitAmount
+</p>
