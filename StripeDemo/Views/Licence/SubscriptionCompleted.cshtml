@@ -1,0 +1,25 @@
+﻿@model StripeDemo.Models.ViewModels.SubscriptionCompletedViewModel
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+
+<div class="row">
+    <p>PaymentIntent</p>
+    <p>@Model.PaymentIntent</p>
+</div>
+
+<div class="row">
+    <p>PaymentIntentClientSecret</p>
+    <p>@Model.PaymentIntentClientSecret</p>
+</div>
+
+<div class="row">
+    <p>QueryString</p>
+    <p>@Model.QueryString</p>
+</div>
+
+
+

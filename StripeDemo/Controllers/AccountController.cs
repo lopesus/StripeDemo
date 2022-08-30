@@ -36,6 +36,10 @@ namespace StripeDemo.Controllers
                         user.StripeCustumerId = stripeCustomer.Id;
                     }
                 }
+                else
+                {
+                    user.StripeCustumerId = customer.Id;
+                }
             }
             else
             {

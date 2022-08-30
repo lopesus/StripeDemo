@@ -1,15 +1,15 @@
 ﻿namespace StripeDemo.Services
 {
     public class UserInfosService : IUserInfosService
-
     {
+        public static UserInfos TestUser= new UserInfos()
+        {
+            Email = "mboumeden@gmail.com",
+            Name = "Mboumeden Giscard"
+        };
         public UserInfos GetCurrentUser()
         {
-            return new UserInfos()
-            {
-                Email = "mboumeden@gmail.com",
-                Name = "Mboumeden Giscard"
-            };
+            return TestUser;
         }
     }
 

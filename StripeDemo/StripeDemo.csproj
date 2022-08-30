@@ -23,7 +23,7 @@
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Views\Home\CheckOut.cshtml" />
     <_ContentIncludedByDefault Remove="Views\Home\PaymentSuccess.cshtml" />
-    <_ContentIncludedByDefault Remove="Views\Licence\Select.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Licence\SubscriptionCompleted.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,7 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <UpToDateCheckInput Remove="Views\Licence\Select.cshtml" />
+    <UpToDateCheckInput Remove="Views\Licence\SubscriptionCompleted.cshtml" />
   </ItemGroup>
 
 </Project>

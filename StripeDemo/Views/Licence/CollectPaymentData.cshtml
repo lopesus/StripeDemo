@@ -1,0 +1,44 @@
+﻿@model StripeDemo.Models.ViewModels.SelectedLicenceViewModel
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h2>payment data</h2>
+
+<div class="row">
+    <p>
+        Try the successful test card: <span>4242424242424242</span>.
+    </p>
+
+    <p>
+        Try the test card that requires SCA: <span>4000002500003155</span>.
+    </p>
+
+    <p>
+        Use any <i>future</i> expiry date, CVC, and 5 digit postal code.
+    </p>
+
+    <hr />
+</div>
+
+<form id="payment-form">
+    <div id="payment-element">
+        <!-- Elements will create form elements here -->
+    </div>
+    <button id="submit">
+        <div class="spinner hidden" id="spinner"></div>
+        <span id="button-text">Pay now</span>
+    </button>
+    <div id="error-message">
+        <!-- Display error message to your customers here -->
+    </div>
+</form>
+
+
+@section Scripts
+{
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="~/js/subscribe.js" defer></script>
+}
