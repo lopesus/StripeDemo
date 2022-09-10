@@ -50,12 +50,15 @@ async function initialize() {
         event.preventDefault();
 
         setLoading(true);
+        var url = location.protocol + '//' + location.host;
+        var returnUrl = url + "/Licence/SubscriptionCompleted";
 
         const { error } = await stripe.confirmPayment({
             //`Elements` instance that was used to create the Payment Element
             elements,
             confirmParams: {
-                return_url: "https://localhost:7230/Licence/SubscriptionCompleted",
+                return_url:  returnUrl ,
+                //return_url:  url + "https://localhost:7230/Licence/SubscriptionCompleted",
                 //return_url: "/Licence/SubscriptionCompleted",
             }
         });

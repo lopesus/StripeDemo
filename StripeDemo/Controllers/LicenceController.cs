@@ -67,7 +67,7 @@ namespace StripeDemo.Controllers
             return View(vm);
         }
 
-       // [HttpPost]
+        // [HttpPost]
         public async Task<IActionResult> CollectPaymentData(string id)
         {
             var vm = new SelectedLicenceViewModel();
@@ -98,7 +98,7 @@ namespace StripeDemo.Controllers
         public ActionResult<SubscriptionCreateResponse> CreateSubscription([FromBody] CreateSubscriptionRequest req)
         {
             //var customerId = HttpContext.Request.Cookies["customer"];
-            var customerId =  userInfosService.GetCurrentUser().StripeCustumerId;
+            var customerId = userInfosService.GetCurrentUser().StripeCustumerId;
 
             // Automatically save the payment method to the subscription
             // when the first payment is successful.
@@ -146,96 +146,115 @@ namespace StripeDemo.Controllers
         {
             var vm = new SubscriptionCompletedViewModel();
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
-            vm.RequestBody=json;
+            vm.RequestBody = json;
 
             var body = Request.Body;
             var query = Request.Query;
-            var ddd = query.TryGetValue("payment_intent",out var paymentIntent);
-            var sss = query.TryGetValue("payment_intent_client_secret",out var paymentIntentClientSecret);
+            var ddd = query.TryGetValue("payment_intent", out var paymentIntent);
+            var sss = query.TryGetValue("payment_intent_client_secret", out var paymentIntentClientSecret);
             var queryString = Request.QueryString;
 
             vm.QueryString = queryString.Value;
-            vm.PaymentIntent=paymentIntent.ToString();
-            vm.PaymentIntentClientSecret=paymentIntentClientSecret.ToString();
-            Console.WriteLine(paymentIntent+paymentIntentClientSecret);
+            vm.PaymentIntent = paymentIntent.ToString();
+            vm.PaymentIntentClientSecret = paymentIntentClientSecret.ToString();
+            Console.WriteLine(paymentIntent + paymentIntentClientSecret);
             return View(vm);
         }
 
-        [HttpPost("webhook")]
-        public async Task<IActionResult> Webhook()
+        [HttpPost]
+        public async Task<IActionResult> WebHook()
         {
-            //var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
-            //Event stripeEvent;
-            //try
-            //{
-            //    stripeEvent = EventUtility.ConstructEvent(
-            //        json,
-            //        Request.Headers["Stripe-Signature"],
-            //        this.options.Value.WebhookSecret
-            //    );
-            //    Console.WriteLine($"Webhook notification with type: {stripeEvent.Type} found for {stripeEvent.Id}");
-            //}
-            //catch (Exception e)
-            //{
-            //    Console.WriteLine($"Something failed {e}");
-            //    return BadRequest();
-            //}
+            //todo in prod get value from environment
+            var webhookSecret = "whsec_d9eebe01a6afaf64c241be2f4a46afd02daac5de1c387ba6a72433f5d6b1d9c4";
 
-            //if (stripeEvent.Type == "invoice.payment_succeeded")
-            //{
-            //    var invoice = stripeEvent.Data.Object as Invoice;
+            var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+            Event stripeEvent;
+            try
+            {
+                stripeEvent = EventUtility.ConstructEvent(
+                    json,
+                    Request.Headers["Stripe-Signature"],
+                    webhookSecret, 300L, false
+                );
+                Console.WriteLine($"Webhook notification with type: {stripeEvent.Type} found for {stripeEvent.Id}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Something failed {e}");
+                return BadRequest();
+            }
 
-            //    if (invoice.BillingReason == "subscription_create")
-            //    {
-            //        // The subscription automatically activates after successful payment
-            //        // Set the payment method used to pay the first invoice
-            //        // as the default payment method for that subscription
+            if (stripeEvent.Type == "invoice.payment_succeeded")
+            {
+                var invoice = stripeEvent.Data.Object as Invoice;
 
-            //        // Retrieve the payment intent used to pay the subscription
-            //        var service = new PaymentIntentService();
-            //        var paymentIntent = service.Get(invoice.PaymentIntentId);
+                if (invoice.BillingReason == "subscription_create")
+                {
+                    // The subscription automatically activates after successful payment
+                    // Set the payment method used to pay the first invoice
+                    // as the default payment method for that subscription
 
-            //        // Set the default payment method
-            //        var options = new SubscriptionUpdateOptions
-            //        {
-            //            DefaultPaymentMethod = paymentIntent.PaymentMethodId,
-            //        };
-            //        var subscriptionService = new SubscriptionService();
-            //        subscriptionService.Update(invoice.SubscriptionId, options);
+                    // Retrieve the payment intent used to pay the subscription
+                    var service = new PaymentIntentService();
+                    var paymentIntent = service.Get(invoice.PaymentIntentId);
 
-            //        Console.WriteLine($"Default payment method set for subscription: {paymentIntent.PaymentMethodId}");
-            //    }
-            //    Console.WriteLine($"Payment succeeded for invoice: {stripeEvent.Id}");
-            //}
+                    // Set the default payment method
+                    var options = new SubscriptionUpdateOptions
+                    {
+                        DefaultPaymentMethod = paymentIntent.PaymentMethodId,
+                    };
+                    var subscriptionService = new SubscriptionService();
+                    subscriptionService.Update(invoice.SubscriptionId, options);
 
-            //if (stripeEvent.Type == "invoice.paid")
-            //{
-            //    // Used to provision services after the trial has ended.
-            //    // The status of the invoice will show up as paid. Store the status in your
-            //    // database to reference when a user accesses your service to avoid hitting rate
-            //    // limits.
-            //}
-            //if (stripeEvent.Type == "invoice.payment_failed")
-            //{
-            //    // If the payment fails or the customer does not have a valid payment method,
-            //    // an invoice.payment_failed event is sent, the subscription becomes past_due.
-            //    // Use this webhook to notify your user that their payment has
-            //    // failed and to retrieve new card details.
-            //}
-            //if (stripeEvent.Type == "invoice.finalized")
-            //{
-            //    // If you want to manually send out invoices to your customers
-            //    // or store them locally to reference to avoid hitting Stripe rate limits.
-            //}
-            //if (stripeEvent.Type == "customer.subscription.deleted")
-            //{
-            //    // handle subscription cancelled automatically based
-            //    // upon your subscription settings. Or if the user cancels it.
-            //}
-            //if (stripeEvent.Type == "customer.subscription.trial_will_end")
-            //{
-            //    // Send notification to your user that the trial will end
-            //}
+                    Console.WriteLine($"Default payment method set for subscription: {paymentIntent.PaymentMethodId}");
+                }
+                Console.WriteLine($"Payment succeeded for invoice: {stripeEvent.Id}");
+            }
+
+            if (stripeEvent.Type == "invoice.paid")
+            {
+                var account = stripeEvent.Account;
+                var invoice = stripeEvent.Data.Object as Invoice;
+
+                // Retrieve the payment intent used to pay the subscription
+                var service = new PaymentIntentService();
+                if (invoice != null)
+                {
+                    var customerId = invoice.CustomerId;
+                    var subscriptionId = invoice.SubscriptionId;
+                    var paymentIntent = await service.GetAsync(invoice.PaymentIntentId);
+
+                    var service2 = new SubscriptionService();
+                    var subscription = await service2.GetAsync(subscriptionId);
+
+                    Console.WriteLine(paymentIntent);
+                }
+                // Used to provision services after the trial has ended.
+                // The status of the invoice will show up as paid. Store the status in your
+                // database to reference when a user accesses your service to avoid hitting rate
+                // limits.
+            }
+            if (stripeEvent.Type == "invoice.payment_failed")
+            {
+                // If the payment fails or the customer does not have a valid payment method,
+                // an invoice.payment_failed event is sent, the subscription becomes past_due.
+                // Use this webhook to notify your user that their payment has
+                // failed and to retrieve new card details.
+            }
+            if (stripeEvent.Type == "invoice.finalized")
+            {
+                // If you want to manually send out invoices to your customers
+                // or store them locally to reference to avoid hitting Stripe rate limits.
+            }
+            if (stripeEvent.Type == "customer.subscription.deleted")
+            {
+                // handle subscription cancelled automatically based
+                // upon your subscription settings. Or if the user cancels it.
+            }
+            if (stripeEvent.Type == "customer.subscription.trial_will_end")
+            {
+                // Send notification to your user that the trial will end
+            }
 
             return Ok();
         }
