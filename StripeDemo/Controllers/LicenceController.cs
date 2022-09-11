@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Stripe;
 using StripeDemo.Models.PaymentsGateway;
@@ -11,10 +12,13 @@ namespace StripeDemo.Controllers
     {
         private IUserInfosService userInfosService;
         private IPaymentsGateway paymentsGateway;
-        public LicenceController(IUserInfosService userInfosService, IPaymentsGateway paymentsGateway)
+
+        private StripeSettings stripeSettings;
+        public LicenceController(IUserInfosService userInfosService, IPaymentsGateway paymentsGateway, IOptions<StripeSettings> options)
         {
             this.userInfosService = userInfosService;
             this.paymentsGateway = paymentsGateway;
+            this.stripeSettings = options.Value;
         }
         public async Task<IActionResult> Index()
         {
@@ -165,7 +169,7 @@ namespace StripeDemo.Controllers
         public async Task<IActionResult> WebHook()
         {
             //todo in prod get value from environment
-            var webhookSecret = "whsec_d9eebe01a6afaf64c241be2f4a46afd02daac5de1c387ba6a72433f5d6b1d9c4";
+            var webHookSecret = stripeSettings.WebHookSecret;
 
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
             Event stripeEvent;
@@ -174,7 +178,7 @@ namespace StripeDemo.Controllers
                 stripeEvent = EventUtility.ConstructEvent(
                     json,
                     Request.Headers["Stripe-Signature"],
-                    webhookSecret, 300L, false
+                    webHookSecret, 300L, false
                 );
                 Console.WriteLine($"Webhook notification with type: {stripeEvent.Type} found for {stripeEvent.Id}");
             }

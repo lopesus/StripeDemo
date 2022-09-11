@@ -1,14 +1,20 @@
 using Stripe;
 using StripeDemo.Models.PaymentsGateway;
+using StripeDemo.Models.ViewModels;
 using StripeDemo.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// This is your test secret API key.
-StripeConfiguration.ApiKey = "sk_test_51LVreJIU31sah1igfA7aDQMMOnbLklHUwsnBtRXL52ZOYqdKRjfOoOwD0981MD1iPcupjOnG4ik09F6PnGUBhIgw00o14bmzUr";
 
 // Add services to the container.
 //builder.Services.AddSingleton<IPaymentsGateway,StripePaymentsGateway>();
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection(StripeSettings.SettingsOptions));
+var stripeSettings = builder.Configuration.GetSection(StripeSettings.SettingsOptions).Get<StripeSettings>();
+
+//set stripe api key
+StripeConfiguration.ApiKey = stripeSettings.ApiKey;
+
+
 builder.Services.AddSingleton<IPaymentsGateway>(provider => new StripePaymentsGateway(
     provider.GetRequiredService<ILogger<StripePaymentsGateway>>(),
     StripeConfiguration.ApiKey));
@@ -24,9 +30,6 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
-// This is your test secret API key.
-StripeConfiguration.ApiKey = "sk_test_51LVreJIU31sah1igfA7aDQMMOnbLklHUwsnBtRXL52ZOYqdKRjfOoOwD0981MD1iPcupjOnG4ik09F6PnGUBhIgw00o14bmzUr";
 
 
 app.UseHttpsRedirection();
