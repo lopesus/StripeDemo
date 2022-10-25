@@ -162,6 +162,29 @@ namespace StripeDemo.Controllers
             vm.PaymentIntent = paymentIntent.ToString();
             vm.PaymentIntentClientSecret = paymentIntentClientSecret.ToString();
             Console.WriteLine(paymentIntent + paymentIntentClientSecret);
+
+            var service = new PaymentIntentService();
+            PaymentIntentGetOptions options=new PaymentIntentGetOptions(){};
+            options.AddExpand("invoice");
+            //options.AddExpand("invoiceId");
+            var payment = await service.GetAsync(paymentIntent.ToString(),options);
+            Console.WriteLine(payment);
+
+            if (payment.Status== "succeeded")
+            {
+                Console.WriteLine();
+            }
+            var invoice = payment.Invoice;
+            var customerId = invoice.CustomerId;
+            var subscriptionId = invoice.SubscriptionId;
+            //var paymentIntent = await service.GetAsync(invoice.PaymentIntentId);
+
+            var service2 = new SubscriptionService();
+            var subscription = await service2.GetAsync(subscriptionId);
+            Console.WriteLine(subscription);
+
+            var dateFinAbonnement = subscription.CurrentPeriodEnd;
+
             return View(vm);
         }
 
